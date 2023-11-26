@@ -13,7 +13,7 @@ from backbone import resnet50_fpn_backbone
 from draw_box_utils import draw_objs
 
 
-def create_model(num_classes, box_thresh=0.5):
+def create_model(num_classes, box_thresh=0.7):
     backbone = resnet50_fpn_backbone()
     model = MaskRCNN(backbone,
                      num_classes=num_classes,
@@ -28,79 +28,82 @@ def time_synchronized():
     return time.time()
 
 
-def main():
-    num_classes = 2  # 不包含背景
-    box_thresh = 0.5
-    weights_path = "./maskrcnn_resnet50_fpn_coco.pth"
-    img_path = "./test/0021.jpg"
-    label_json_path = './datasets/coco2017/annotations/instances_val2017.json'
-
+def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, weights_path="./save_weights/model_19.pth", label_json_path='coco91_indices.json'):
     # get devices
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    print("using {} device.".format(device))
+    print("Using {} device.".format(device))
 
     # create model
     model = create_model(num_classes=num_classes + 1, box_thresh=box_thresh)
 
     # load train weights
-    assert os.path.exists(weights_path), "{} file dose not exist.".format(weights_path)
+    assert os.path.exists(weights_path), "{} file does not exist.".format(weights_path)
     weights_dict = torch.load(weights_path, map_location='cpu')
     weights_dict = weights_dict["model"] if "model" in weights_dict else weights_dict
     model.load_state_dict(weights_dict)
     model.to(device)
 
     # read class_indict
-    assert os.path.exists(label_json_path), "json file {} dose not exist.".format(label_json_path)
+    assert os.path.exists(label_json_path), "JSON file {} does not exist.".format(label_json_path)
     with open(label_json_path, 'r') as json_file:
         category_index = json.load(json_file)
 
-    # load image
-    assert os.path.exists(img_path), f"{img_path} does not exits."
-    original_img = Image.open(img_path).convert('RGB')
+    os.makedirs(output_folder, exist_ok=True)
 
-    # from pil image to tensor, do not normalize image
-    data_transform = transforms.Compose([transforms.ToTensor()])
-    img = data_transform(original_img)
-    # expand batch dimension
-    img = torch.unsqueeze(img, dim=0)
+    for filename in os.listdir(input_folder):
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+            # load image
+            img_path = os.path.join(input_folder, filename)
+            original_img = Image.open(img_path).convert('RGB')
 
-    model.eval()  # 进入验证模式
-    with torch.no_grad():
-        # init
-        img_height, img_width = img.shape[-2:]
-        init_img = torch.zeros((1, 3, img_height, img_width), device=device)
-        model(init_img)
+            # from PIL image to tensor, do not normalize image
+            data_transform = transforms.Compose([transforms.ToTensor()])
+            img = data_transform(original_img)
+            # expand batch dimension
+            img = torch.unsqueeze(img, dim=0)
 
-        t_start = time_synchronized()
-        predictions = model(img.to(device))[0]
-        t_end = time_synchronized()
-        print("inference+NMS time: {}".format(t_end - t_start))
+            model.eval()  # 进入验证模式
+            with torch.no_grad():
+                # init
+                img_height, img_width = img.shape[-2:]
+                init_img = torch.zeros((1, 3, img_height, img_width), device=device)
+                model(init_img)
 
-        predict_boxes = predictions["boxes"].to("cpu").numpy()
-        predict_classes = predictions["labels"].to("cpu").numpy()
-        predict_scores = predictions["scores"].to("cpu").numpy()
-        predict_mask = predictions["masks"].to("cpu").numpy()
-        predict_mask = np.squeeze(predict_mask, axis=1)  # [batch, 1, h, w] -> [batch, h, w]
+                t_start = time_synchronized()
+                predictions = model(img.to(device))[0]
+                t_end = time_synchronized()
+                print("Inference+NMS time: {}".format(t_end - t_start))
 
-        if len(predict_boxes) == 0:
-            print("没有检测到任何目标!")
-            return
+                predict_boxes = predictions["boxes"].to("cpu").numpy()
+                predict_classes = predictions["labels"].to("cpu").numpy()
+                predict_scores = predictions["scores"].to("cpu").numpy()
+                predict_mask = predictions["masks"].to("cpu").numpy()
+                predict_mask = np.squeeze(predict_mask, axis=1)  # [batch, 1, h, w] -> [batch, h, w]
 
-        plot_img = draw_objs(original_img,
-                             boxes=predict_boxes,
-                             classes=predict_classes,
-                             scores=predict_scores,
-                             masks=predict_mask,
-                             category_index=category_index,
-                             line_thickness=3,
-                             font='arial.ttf',
-                             font_size=20)
-        plt.imshow(plot_img)
-        plt.show()
-        # 保存预测的图片结果
-        plot_img.save("test_result.jpg")
+                if len(predict_boxes) == 0:
+                    print("No objects detected in {}!".format(filename))
+                    continue
+
+                plot_img = draw_objs(original_img,
+                                     boxes=predict_boxes,
+                                     classes=predict_classes,
+                                     scores=predict_scores,
+                                     masks=predict_mask,
+                                     category_index=category_index,
+                                     line_thickness=3,
+                                     font='arial.ttf',
+                                     font_size=20)
+                plt.imshow(plot_img)
+                plt.show()
+
+                # Save predicted image result
+                output_path = os.path.join(output_folder, f"result_{filename}")
+                plot_img.save(output_path)
+                print(f"Saved: {output_path}")
 
 
 if __name__ == '__main__':
-    main()
+    input_folder = './datasets/coco2017/val2017'  # Replace with the actual input folder path
+    output_folder = './datasets/result'  # Replace with the actual output folder path
 
+    batch_inference(input_folder, output_folder)

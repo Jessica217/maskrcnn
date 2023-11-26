@@ -11,6 +11,7 @@ from my_dataset_coco import CocoDetection
 from my_dataset_voc import VOCInstances
 from train_utils import train_eval_utils as utils
 from train_utils import GroupedBatchSampler, create_aspect_ratio_groups
+import argparse
 
 
 def create_model(num_classes, load_pretrain_weights=True):
@@ -47,7 +48,7 @@ def main(args):
 
     data_transform = {
         "train": transforms.Compose([transforms.ToTensor(),
-                                     transforms.RandomHorizontalFlip(0.7)]),
+                                     transforms.RandomHorizontalFlip(0.5)]),
         "val": transforms.Compose([transforms.ToTensor()])
     }
 
@@ -172,7 +173,7 @@ def main(args):
             'epoch': epoch}
         if args.amp:
             save_files["scaler"] = scaler.state_dict()
-        torch.save(save_files, "./save_new_weights/model_{}.pth".format(epoch))
+        torch.save(save_files, "./save_weights/model_{}.pth".format(epoch))
 
     # plot loss and lr curve
     if len(train_loss) != 0 and len(learning_rate) != 0:
@@ -186,8 +187,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    import argparse
-
+    # 定义程序所需的命令行参数以及这些参数的属性
     parser = argparse.ArgumentParser(
         description=__doc__)
 
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     # 指定接着从哪个epoch数开始训练
     parser.add_argument('--start_epoch', default=0, type=int, help='start epoch')
     # 训练的总epoch数
-    parser.add_argument('--epochs', default=100, type=int, metavar='N',
+    parser.add_argument('--epochs', default=50, type=int, metavar='N',
                         help='number of total epochs to run')
     # 学习率
     parser.add_argument('--lr', default=0.004, type=float,
@@ -218,12 +218,12 @@ if __name__ == "__main__":
                         metavar='W', help='weight decay (default: 1e-4)',
                         dest='weight_decay')
     # 针对torch.optim.lr_scheduler.MultiStepLR的参数
-    parser.add_argument('--lr-steps', default=[10, 20, 30, 40, 50, 60, 70, 80, 90], nargs='+', type=int,
+    parser.add_argument('--lr-steps', default=[10, 20, 30, 40], nargs='+', type=int,
                         help='decrease lr every step-size epochs')
     # 针对torch.optim.lr_scheduler.MultiStepLR的参数
     parser.add_argument('--lr-gamma', default=0.1, type=float, help='decrease lr by a factor of lr-gamma')
     # 训练的batch size(如果内存/GPU显存充裕，建议设置更大)
-    parser.add_argument('--batch_size', default=4, type=int, metavar='N',
+    parser.add_argument('--batch_size', default=2, type=int, metavar='N',
                         help='batch size when training.')
     parser.add_argument('--aspect-ratio-group-factor', default=3, type=int)
     parser.add_argument("--pretrain", type=bool, default=True, help="load COCO pretrain weights.")
