@@ -1,6 +1,5 @@
 # 命令行执行： python labelme2coco.py --input_dir images --output_dir coco2017 --labels labels.txt
 # 输出文件夹必须为空文件夹
-
 import argparse
 import collections
 import datetime
@@ -14,6 +13,7 @@ import imgviz
 import numpy as np
 import labelme
 from sklearn.model_selection import train_test_split
+
 
 try:
     import pycocotools.mask
