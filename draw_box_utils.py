@@ -231,7 +231,6 @@ def draw_objs(image: Image,
     return image
 
 # 使用非极大值抑制
-
 def non_max_suppression(boxes, scores, threshold):
     """
     非极大值抑制
@@ -244,20 +243,40 @@ def non_max_suppression(boxes, scores, threshold):
         保留的边界框索引
 
     """
-    selected_indices = []
+    if len(boxes) == 0:
+        return []
+
+    # 计算所有框的面积
+    areas = (boxes[:, 2] - boxes[:, 0] + 1) * (boxes[:, 3] - boxes[:, 1] + 1)
+
+    # 根据分数降序排序框的索引
     order = np.argsort(scores)[::-1]
+
+    # 保留的索引
+    keep = []
 
     while len(order) > 0:
         i = order[0]
-        selected_indices.append(i)
-        suppress = [0] * len(order[1:])
-        for j, o in enumerate(order[1:]):
-            if bbox_iou(boxes[i], boxes[o]) > threshold:
-                suppress[j] = 1
+        keep.append(i)
 
-        order = order[np.array(suppress) == 0]
+        # 计算当前框与其他框的IoU
+        xx1 = np.maximum(boxes[i, 0], boxes[order[1:], 0])
+        yy1 = np.maximum(boxes[i, 1], boxes[order[1:], 1])
+        xx2 = np.minimum(boxes[i, 2], boxes[order[1:], 2])
+        yy2 = np.minimum(boxes[i, 3], boxes[order[1:], 3])
 
-    return selected_indices
+        w = np.maximum(0.0, xx2 - xx1 + 1)
+        h = np.maximum(0.0, yy2 - yy1 + 1)
+
+        inter = w * h
+        iou = inter / (areas[i] + areas[order[1:]] - inter)
+
+        # 找到IoU小于阈值的框
+        inds = np.where(iou <= threshold)[0]
+        order = order[inds + 1]
+
+    return keep
+
 
 def bbox_iou(box1, box2):
     """
