@@ -392,7 +392,7 @@ class GeneralizedRCNNTransform(nn.Module):
         """
         对网络的预测结果进行后处理（主要将bboxes还原到原图像尺度上）
         Args:
-            result: list(dict), 网络的预测结果, len(result) == batch_size
+            result: list(dict), 网络的预测结果, len(result_output) == batch_size
             image_shapes: list(torch.Size), 图像预处理缩放后的尺寸, len(image_shapes) == batch_size
             original_image_sizes: list(torch.Size), 图像的原始尺寸, len(original_image_sizes) == batch_size
 

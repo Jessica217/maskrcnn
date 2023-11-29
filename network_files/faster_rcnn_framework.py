@@ -50,7 +50,7 @@ class FasterRCNNBase(nn.Module):
             targets (list[Dict[Tensor]]): ground-truth boxes present in the image (optional)
 
         Returns:
-            result (list[BoxList] or dict[Tensor]): the output from the model.
+            result_output (list[BoxList] or dict[Tensor]): the output from the model.
                 During training, it returns a dict[Tensor] which contains the losses.
                 During testing, it returns list[BoxList] contains additional fields
                 like `scores`, `labels` and `mask` (for Mask R-CNN models).

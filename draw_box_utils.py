@@ -3,6 +3,7 @@ import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
 from PIL import ImageColor
 import numpy as np
+import cv2
 
 STANDARD_COLORS = [
     'AliceBlue', 'Chartreuse', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque',
@@ -89,7 +90,7 @@ def draw_masks(image, masks, colors, thresh: float = 0.7, alpha: float = 0.5):
     return fromarray(out.astype(np.uint8))
 
 
-def draw_objs(image: Image,
+'''def draw_objs(image: Image,
               boxes: np.ndarray = None,
               classes: np.ndarray = None,
               scores: np.ndarray = None,
@@ -122,7 +123,6 @@ def draw_objs(image: Image,
     Returns:
 
     """
-
     # 过滤掉低概率的目标
     idxs = np.greater(scores, box_thresh)
     boxes = boxes[idxs]
@@ -150,4 +150,140 @@ def draw_objs(image: Image,
         # Draw all mask onto image.
         image = draw_masks(image, masks, colors, mask_thresh)
 
+    return image'''
+
+
+
+from PIL import Image, ImageDraw, ImageFont
+import numpy as np
+from typing import List
+
+def draw_objs(image: Image,
+              boxes: np.ndarray = None,
+              classes: np.ndarray = None,
+              scores: np.ndarray = None,
+              masks: np.ndarray = None,
+              category_index: dict = None,
+              box_thresh: float = 0.1,
+              mask_thresh: float = 0.5,
+              line_thickness: int = 8,
+              font: str = 'arial.ttf',
+              font_size: int = 24,
+              draw_boxes_on_image: bool = True,
+              draw_masks_on_image: bool = True,
+              nms_thresh: float = 0.5):
+    """
+    将目标边界框信息，类别信息，mask信息绘制在图片上
+    Args:
+        image: 需要绘制的图片
+        boxes: 目标边界框信息
+        classes: 目标类别信息
+        scores: 目标概率信息
+        masks: 目标mask信息
+        category_index: 类别与名称字典
+        box_thresh: 过滤的概率阈值
+        mask_thresh:
+        line_thickness: 边界框宽度
+        font: 字体类型
+        font_size: 字体大小
+        draw_boxes_on_image:
+        draw_masks_on_image:
+        nms_thresh: 非极大值抑制的阈值
+
+    Returns:
+
+    """
+    # 过滤掉低概率的目标
+    idxs = np.greater(scores, box_thresh)
+    boxes = boxes[idxs]
+    classes = classes[idxs]
+    scores = scores[idxs]
+    if masks is not None:
+        masks = masks[idxs]
+    if len(boxes) == 0:
+        return image
+
+    # 使用非极大值抑制过滤重叠的框
+    selected_indices = non_max_suppression(boxes, scores, nms_thresh)
+    boxes = boxes[selected_indices]
+    classes = classes[selected_indices]
+    scores = scores[selected_indices]
+    if masks is not None:
+        masks = masks[selected_indices]
+
+    colors = [ImageColor.getrgb(STANDARD_COLORS[cls % len(STANDARD_COLORS)]) for cls in classes]
+
+    if draw_boxes_on_image:
+        # Draw all boxes onto image.
+        draw = ImageDraw.Draw(image)
+        for box, cls, score, color in zip(boxes, classes, scores, colors):
+            left, top, right, bottom = box
+            # 绘制目标边界框
+            draw.line([(left, top), (left, bottom), (right, bottom),
+                       (right, top), (left, top)], width=line_thickness, fill=color)
+            # 绘制类别和概率信息
+            draw_text(draw, box.tolist(), int(cls), float(score), category_index, color, font, font_size)
+
+    if draw_masks_on_image and (masks is not None):
+        # Draw all mask onto image.
+        image = draw_masks(image, masks, colors, mask_thresh)
+
     return image
+
+# 使用非极大值抑制
+
+def non_max_suppression(boxes, scores, threshold):
+    """
+    非极大值抑制
+    Args:
+        boxes: 目标边界框
+        scores: 目标概率
+        threshold: IoU 阈值
+
+    Returns:
+        保留的边界框索引
+
+    """
+    selected_indices = []
+    order = np.argsort(scores)[::-1]
+
+    while len(order) > 0:
+        i = order[0]
+        selected_indices.append(i)
+        suppress = [0] * len(order[1:])
+        for j, o in enumerate(order[1:]):
+            if bbox_iou(boxes[i], boxes[o]) > threshold:
+                suppress[j] = 1
+
+        order = order[np.array(suppress) == 0]
+
+    return selected_indices
+
+def bbox_iou(box1, box2):
+    """
+    计算两个边界框的 IoU
+    Args:
+        box1: 边界框1
+        box2: 边界框2
+
+    Returns:
+        IoU 值
+
+    """
+    x1, y1, x2, y2 = box1
+    x3, y3, x4, y4 = box2
+
+    xi = max(x1, x3)
+    yi = max(y1, y3)
+    wi = max(0, min(x2, x4) - xi)
+    hi = max(0, min(y2, y4) - yi)
+
+    inter_area = wi * hi
+    box1_area = (x2 - x1) * (y2 - y1)
+    box2_area = (x4 - x3) * (y4 - y3)
+
+    iou = inter_area / float(box1_area + box2_area - inter_area + 1e-16)
+    return iou
+
+# 其他辅助函数的定义和引用（draw_text, draw_masks等）没有提供，你需要在代码中实现或者引入相应的函数。
+

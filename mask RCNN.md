@@ -323,7 +323,7 @@ if mask_roi_pool is None:
 
 ![image-20231126200351057](assets/image-20231126200351057.png)
 
-### bestmAP：0.8956
+### **bestmAP：0.8956**
 
 ### 	2.mask_roi_pool resize (28*28) epoch=50  batch_size=2
 
@@ -337,7 +337,8 @@ if mask_roi_pool is None:
 ![image-20231126200702198](assets/image-20231126200702198.png)
 
 ![image-20231126200714097](assets/image-20231126200714097.png)
-
+### 	（3.注：第二次跑结果如下：28*28  batch_size=2 epoch=50 
+![img.png](assets/img.png)
 ### **best_mAP：0.9047**
 
 ## 2.使用数据集增强后：
@@ -347,7 +348,14 @@ if mask_roi_pool is None:
 ### 	1.mask_roi_pool resize (28*28) epoch=50  batch_size=2
 
 ![image-20231128225551732](assets/image-20231128225551732.png)
-
 ### **best_mAP(Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=100 ])是0.8132**
 
+###      第二次训练结果：
+![img.png](assets/img_28_2_aug.png)
+![img.png](assets/loss_28_2_aug.png)
+###      mAP为0.8819
+
+
 ### 	2.mask_roi_pool resize (32*32) epoch=50  batch_size=2
+![img.png](assets/32_2_AUG.png)
+### mAP为0.8862
