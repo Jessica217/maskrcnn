@@ -89,9 +89,9 @@ def to_coco(args, label_files, train):
                 license=0,
                 url=None,
                 file_name=osp.relpath(out_img_file, osp.dirname(out_ann_file)),
-                #   out_img_file = "/coco/train2017/1.jpg"
-                #   out_ann_file = "/coco/annotations/annotations_train2017.json"
-                #   osp.dirname(out_ann_file) = "/coco/annotations"
+                #   out_img_file = "/augmentation_coco/train2017/1.jpg"
+                #   out_ann_file = "/augmentation_coco/annotations/annotations_train2017.json"
+                #   osp.dirname(out_ann_file) = "/augmentation_coco/annotations"
                 #   file_name = ..\train2017\1.jpg   out_ann_file文件所在目录下 找 out_img_file 的相对路径
                 height=img.shape[0],
                 width=img.shape[1],

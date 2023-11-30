@@ -102,7 +102,7 @@ class CocoDetection(data.Dataset):
         target["masks"] = masks
         target["image_id"] = torch.tensor([img_id])
 
-        # for conversion to coco api
+        # for conversion to augmentation_coco api
         target["area"] = area
         target["iscrowd"] = iscrowd
 
@@ -114,7 +114,7 @@ class CocoDetection(data.Dataset):
             index (int): Index
 
         Returns:
-            tuple: Tuple (image, target). target is the object returned by ``coco.loadAnns``.
+            tuple: Tuple (image, target). target is the object returned by ``augmentation_coco.loadAnns``.
         """
         coco = self.coco
         img_id = self.ids[index]

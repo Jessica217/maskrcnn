@@ -42,9 +42,9 @@ def main(args):
     print("Using {} device training.".format(device.type))
 
     # 用来保存coco_info的文件
-    #now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    det_results_file = f"det_results_32_2_aug第1次训练.txt"
-    seg_results_file = f"seg_results_32_2_aug第1次训练.txt"
+    now = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    det_results_file = f"det_results{now}.txt"
+    seg_results_file = f"seg_results{now}.txt"
 
     data_transform = {
         "train": transforms.Compose([transforms.ToTensor(),
@@ -126,7 +126,7 @@ def main(args):
     if args.resume:
         # If map_location is missing, torch.load will first load the module to CPU
         # and then copy each parameter to where it was saved,
-        # which would result_output in all processes on the same machine using the same set of devices.
+        # which would result in all processes on the same machine using the same set of devices.
         checkpoint = torch.load(args.resume, map_location='cpu')  # 读取之前保存的权重文件(包括优化器以及学习率策略)
         model.load_state_dict(checkpoint['model'])
         optimizer.load_state_dict(checkpoint['optimizer'])
@@ -194,11 +194,11 @@ if __name__ == "__main__":
     # 训练设备类型
     parser.add_argument('--device', default='cuda:0', help='device')
     # 训练数据集的根目录
-    parser.add_argument('--data-path', default='./datasets/coco_aug', help='dataset')
+    parser.add_argument('--data-path', default='./datasets/coco2017', help='dataset')
     # 检测目标类别数(不包含背景)
     parser.add_argument('--num-classes', default=2, type=int, help='num_classes')
     # 文件保存地址
-    parser.add_argument('--output-dir', default='./save_weights', help='path where to save')
+    parser.add_argument('--output-dir', default='./save_new_weights', help='path where to save')
     # 若需要接着上次训练，则指定上次训练保存权重文件地址
     parser.add_argument('--resume', default='', type=str, help='resume from checkpoint')
     # 指定接着从哪个epoch数开始训练

@@ -28,7 +28,7 @@ def time_synchronized():
     return time.time()
 
 
-def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, weights_path="./save_weights/best_model_for_28_2(augdata).pth", label_json_path='coco91_indices.json'):
+def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, weights_path="./save_weights/best_model_for_64_2(augdata).pth", label_json_path='coco91_indices.json'):
     # get devices
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Using {} device.".format(device))
@@ -104,6 +104,6 @@ def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, 
 
 if __name__ == '__main__':
     input_folder = './datasets/coco_aug/val2017'  # Replace with the actual input folder path
-    output_folder = './datasets/result_output_for_28_2_aug_nms'  # Replace with the actual output folder path
+    output_folder = './datasets/result_output_for_64_2_aug_nms'  # Replace with the actual output folder path
 
     batch_inference(input_folder, output_folder)
