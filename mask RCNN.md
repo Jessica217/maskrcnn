@@ -360,3 +360,11 @@ if mask_roi_pool is None:
 ### mAP为0.8862
 
 ###     3.mask_roi_pool resize (64*64) epoch=50  batch_size=2
+
+## 12.1-12.8
+### 需要再尝试数据增强，缩放，把旋转的删除，需要将数据集的好坏比例均衡，并且需要写word文档（abstract,method,结论）
+### 首先使用5倍增强的good_good数据集：平移，翻转，旋转，亮度调整210+6*5=240
+### 结果如下
+![img.png](assets/mAP_32_new_aug.png)
+![img.png](assets/loss.png)
+### 其次尝试上下翻转，左右翻转，旋转180°，平移，翻转，旋转，亮度调整258
