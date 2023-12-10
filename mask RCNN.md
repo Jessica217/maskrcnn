@@ -361,10 +361,23 @@ if mask_roi_pool is None:
 
 ###     3.mask_roi_pool resize (64*64) epoch=50  batch_size=2
 
+
 ## 12.1-12.8
-### 需要再尝试数据增强，缩放，把旋转的删除，需要将数据集的好坏比例均衡，并且需要写word文档（abstract,method,结论）
-### 首先使用5倍增强的good_good数据集：平移，翻转，旋转，亮度调整210+6*5=240
-### 结果如下
+### 组会总结：需要再尝试数据增强，缩放，把旋转的删除，需要将数据集的好坏比例均衡，并且需要写word文档（abstract,method,结论）
+### 1.首先使用5倍增强的good-good数据集：平移，翻转，旋转，亮度调整。总数据量为210+6*5=240
+### 使用output_size = 32 ,epoch=50，batchsize=2的结果如下
 ![img.png](assets/mAP_32_new_aug.png)
 ![img.png](assets/loss.png)
-### 其次尝试上下翻转，左右翻转，旋转180°，平移，翻转，旋转，亮度调整258
+### 2.尝试上下翻转，左右翻转，旋转180°，平移，翻转，旋转，亮度调整。总数据集量为258
+### 使用output_size = 32 ,epoch=50，batchsize=2的结果如下
+![img.png](img.png)
+![img.png](assets/loss_and_lr_aug_258pic20231207-092811.png)
+
+## 12.8-12.15
+### 组会总结：继续写结果，然后看一下训练集中good_good和测试集中good_good的占比是否一致，
+### 然后再换测试集和验证集 看看mAP的结果；最后再算算混淆矩阵中的四个比值，val的
+### 结果:使用只有左右翻转，上下翻转，逆时针转180°
+### 第一次运行结果 
+![img.png](assets/mAP_resize32_aug18.png)
+### mAP=0.82
+### 第二次运行结果best 0.8267
