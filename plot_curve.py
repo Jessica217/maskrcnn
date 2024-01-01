@@ -23,7 +23,7 @@ def plot_loss_and_lr(train_loss, learning_rate):
         plt.legend(handles1 + handles2, labels1 + labels2, loc='upper right')
 
         fig.subplots_adjust(right=0.8)  # 防止出现保存图片显示不全的情况
-        fig.savefig('./loss_and_lr_32-aug18{}.png'.format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")))
+        fig.savefig('./loss_and_lr_34-228{}.png'.format(datetime.datetime.now().strftime("%Y%m%d-%H%M%S")))
         plt.close()
         print("successful save loss curve! ")
     except Exception as e:
@@ -39,7 +39,7 @@ def plot_map(mAP):
         plt.title('Eval mAP')
         plt.xlim(0, len(mAP))
         plt.legend(loc='best')
-        plt.savefig('./mAP_resize32_aug18.png')
+        plt.savefig('./mAP_resize34_228.png')
         plt.close()
         print("successful save mAP curve!")
     except Exception as e:

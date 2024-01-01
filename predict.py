@@ -28,7 +28,7 @@ def time_synchronized():
     return time.time()
 
 
-def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, weights_path="./save_weights/best_model_for_64_2(augdata).pth", label_json_path='coco91_indices.json'):
+def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, weights_path="./save_weights/best_for_228_32_best.pth", label_json_path='coco91_indices.json'):
     # get devices
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print("Using {} device.".format(device))
@@ -47,6 +47,8 @@ def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, 
     assert os.path.exists(label_json_path), "JSON file {} does not exist.".format(label_json_path)
     with open(label_json_path, 'r') as json_file:
         category_index = json.load(json_file)
+
+    category_index = {'1':'Normal','2':'Abnormal'}
 
     os.makedirs(output_folder, exist_ok=True)
 
@@ -103,7 +105,7 @@ def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, 
 
 
 if __name__ == '__main__':
-    input_folder = './datasets/coco_aug/val2017'  # Replace with the actual input folder path
-    output_folder = './datasets/result_output_for_64_2_aug_nms'  # Replace with the actual output folder path
+    input_folder = './datasets/extra_DMSA_VAL/images'  # Replace with the actual input folder path
+    output_folder = './datasets/result_for_50'  # Replace with the actual output folder path
 
     batch_inference(input_folder, output_folder)
