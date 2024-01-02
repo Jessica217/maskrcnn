@@ -35,7 +35,7 @@ print("数据集列表", img_list)
 print("左右翻转-start")
 
 # 1.遍历图片
-'''for i in range(len(img_list)):
+for i in range(len(img_list)):
     print("===================================================")
     print("处理第%s张图片ing......"% i)
     # 图片路径
@@ -104,7 +104,7 @@ print("左右翻转-start")
         setting = None
     else:
         print(json_path + "-------文件不存在")
-print("左右翻转-end")'''
+print("左右翻转-end")
 
 
 # 原理同上

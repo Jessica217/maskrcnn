@@ -376,8 +376,28 @@ if mask_roi_pool is None:
 ## 12.8-12.15
 ### 组会总结：继续写结果，然后看一下训练集中good_good和测试集中good_good的占比是否一致，
 ### 然后再换测试集和验证集 看看mAP的结果；最后再算算混淆矩阵中的四个比值，val的
-### 结果:使用只有左右翻转，上下翻转，逆时针转180°
-### 第一次运行结果 
+
+#### 结果:使用只有左右翻转，上下翻转，旋转180°这三种数据增强
+#### 1.第一次运行结果 
 ![img.png](assets/mAP_resize32_aug18.png)
-### mAP=0.82
-### 第二次运行结果best 0.8267
+#### best 0.8267
+#### 2.第二次运行结果(10代和20代学习率下降，32，228张)。
+![img.png](loss_and_lr_32_22820231214-173946.png)
+![img.png](mAP_32_aug_228.png)
+#### best mAP= 0.8679
+
+
+### 12.15-12.22
+#### 1.将train:test = 8:2进行测试，mask_roi_pool=32
+#### 结果：best mAP = 0.8023
+
+#### 2.使用parser.add_argument('--data-path', default='./datasets/cocodatasets/aug228_91——new', help='dataset')
+#### 打乱数据集形成新的9：1 数据集，结果(第一次训练)：
+![img.png](loss_and_lr_32_228_91_new.png)
+![img.png](mAP_32_aug_228_91_new.png)
+#### best mAP=0.8420
+#### 第二次训练
+#### best mAP=0.8497
+#### 第三次训练 best mAP= 0.8645
+
+
