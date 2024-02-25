@@ -85,9 +85,9 @@ def draw_masks(image, masks, colors, thresh: float = 0.7, alpha: float = 0.5):
     mask_all = masks_left + masks_right
     '''print(mask_all)
     print(mask_all.shape)'''
-    True_num = np.sum(mask_all == True)
-    print(True_num)
-    get_file_pos('./datasets/extra_DMSA_VAL/RGB_mode/')
+    True_num_dl = np.sum(mask_all == True)
+    print(True_num_dl)
+    get_file_pos('./datasets/extra_DMSA_VAL/RGB_mode/') # 调用函数
 
 
 
