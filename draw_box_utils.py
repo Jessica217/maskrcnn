@@ -4,6 +4,7 @@ import PIL.ImageFont as ImageFont
 from PIL import ImageColor
 import numpy as np
 import cv2
+from json_mask import get_file_pos
 
 STANDARD_COLORS = [
     'AliceBlue', 'Chartreuse', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque',
@@ -77,11 +78,21 @@ def draw_text(draw,
 
 
 def draw_masks(image, masks, colors, thresh: float = 0.7, alpha: float = 0.5):
-    np_image = np.array(image)
-    masks = np.where(masks > thresh, True, False)
+    np_image = np.array(image) # 原图尺寸
+    masks = np.where(masks > thresh, True, False) # 肾脏
+    masks_left = masks[0]
+    masks_right = masks[1]
+    mask_all = masks_left + masks_right
+    '''print(mask_all)
+    print(mask_all.shape)'''
+    True_num = np.sum(mask_all == True)
+    print(True_num)
+    get_file_pos('./datasets/extra_DMSA_VAL/RGB_mode/')
+
+
 
     # colors = np.array(colors)
-    img_to_draw = np.copy(np_image)
+    img_to_draw = np.copy(np_image) # 创建图像副本
     # TODO: There might be a way to vectorize this
     for mask, color in zip(masks, colors):
         img_to_draw[mask] = color
@@ -148,7 +159,7 @@ def draw_objs(image: Image,
         masks = masks[selected_indices]
 
     #colors = [ImageColor.getrgb(STANDARD_COLORS[cls % len(STANDARD_COLORS)]) for cls in classes]
-    colors = [ImageColor.getrgb('CornflowerBlue'),ImageColor.getrgb('Cyan')]
+    colors = [ImageColor.getrgb('CornflowerBlue'), ImageColor.getrgb('Cyan')]
 
     if draw_boxes_on_image:
         # Draw all boxes onto image.
@@ -166,6 +177,7 @@ def draw_objs(image: Image,
         image = draw_masks(image, masks, colors, mask_thresh)
 
     return image
+
 
 # 使用非极大值抑制
 def non_max_suppression(boxes, scores, threshold):
@@ -208,7 +220,6 @@ def non_max_suppression(boxes, scores, threshold):
         inter = w * h
         iou = inter / (areas[i] + areas[order[1:]] - inter)
 
-        # 找到IoU小于阈值的框
         inds = np.where(iou <= threshold)[0]
         order = order[inds + 1]
 
@@ -239,6 +250,7 @@ def bbox_iou(box1, box2):
     box2_area = (x4 - x3) * (y4 - y3)
 
     iou = inter_area / float(box1_area + box2_area - inter_area + 1e-16)
+
     return iou
 
 # 其他辅助函数的定义和引用（draw_text, draw_masks等）没有提供，你需要在代码中实现或者引入相应的函数。
