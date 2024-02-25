@@ -27,9 +27,9 @@ def get_file_pos(folder_path):
         print(masks_list)
         print(masks.shape)
         print(np.sum(masks == True))
-        '''cv2.imshow('img', img)
+        cv2.imshow('img', img)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()'''
+        cv2.destroyAllWindows()
 
     return masks_list
 
