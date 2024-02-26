@@ -11,6 +11,7 @@ from torchvision import transforms
 from network_files import MaskRCNN
 from backbone import resnet50_fpn_backbone
 from draw_box_utils import draw_objs
+from json_mask import get_file_pos
 
 
 def create_model(num_classes, box_thresh=0.7):
@@ -51,7 +52,8 @@ def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, 
     category_index = {'1':'Normal','2':'Abnormal'}
 
     os.makedirs(output_folder, exist_ok=True)
-
+    list_iou=[]
+    mask = get_file_pos(folder_path = './datasets/extra_DMSA_VAL/RGB_mode/')
     for filename in os.listdir(input_folder):
         if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
             # load image
@@ -87,6 +89,8 @@ def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, 
                     continue
 
                 plot_img = draw_objs(original_img,
+                                     next(mask),
+                                     list_iou,
                                      boxes=predict_boxes,
                                      classes=predict_classes,
                                      scores=predict_scores,
@@ -102,6 +106,11 @@ def batch_inference(input_folder, output_folder, num_classes=2, box_thresh=0.5, 
         output_path = os.path.join(output_folder, f"result_{filename}")
         plot_img.save(output_path)
         print(f"Saved: {output_path}")
+    print(list_iou)
+    total = sum(list_iou)
+    length = len(list_iou)
+    avg = total / length
+    print(avg)
 
 
 if __name__ == '__main__':

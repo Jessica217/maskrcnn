@@ -21,17 +21,17 @@ def get_file_pos(folder_path):
         pts2 = np.array(right_kidney_pos, np.int32)
         cv2.fillPoly(img, [pts1], color = 255)
         cv2.fillPoly(img, [pts2], color = 255)
-        print(img)
+        # print(img)
         masks = np.where(img == 255, True, False)
         masks_list.append(masks)
-        print(masks_list)
-        print(masks.shape)
-        print(np.sum(masks == True))
-        cv2.imshow('img', img)
+        # print(masks_list)
+        # print(masks.shape)
+        # print(np.sum(masks == True))
+        '''cv2.imshow('img', img)
         cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        cv2.destroyAllWindows()'''
+        yield masks
 
-    return masks_list
 
-get_file_pos(folder_path = './datasets/extra_DMSA_VAL/RGB_mode/')
+# get_file_pos(folder_path = './datasets/extra_DMSA_VAL/RGB_mode/')
 

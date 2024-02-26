@@ -1,3 +1,4 @@
+import numpy
 from PIL.Image import Image, fromarray
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
@@ -77,19 +78,26 @@ def draw_text(draw,
         left += text_width
 
 
-def draw_masks(image, masks, colors, thresh: float = 0.7, alpha: float = 0.5):
+def draw_masks(image, masks, colors, list, mask_GT, thresh: float = 0.7, alpha: float = 0.5):
+
     np_image = np.array(image) # 原图尺寸
     masks = np.where(masks > thresh, True, False) # 肾脏
     masks_left = masks[0]
     masks_right = masks[1]
-    mask_all = masks_left + masks_right
+    mask_DL = masks_left + masks_right
     '''print(mask_all)
     print(mask_all.shape)'''
-    True_num_dl = np.sum(mask_all == True)
-    print(True_num_dl)
-    get_file_pos('./datasets/extra_DMSA_VAL/RGB_mode/') # 调用函数
-
-
+    #mask_DL = np.sum(mask_all == True)
+    # print(mask_DL.shape)
+    # print(True_num_dl)
+    # get_file_pos('./datasets/extra_DMSA_VAL/RGB_mode/') # 调用函数
+    # print(mask_GT.shape)
+    intersect = masks * mask_DL
+    union = mask_GT + mask_DL
+    inter_num = np.sum(intersect == True)
+    union_num = np.sum(union == True)
+    iou = inter_num / union_num
+    list.append(iou)
 
     # colors = np.array(colors)
     img_to_draw = np.copy(np_image) # 创建图像副本
@@ -106,6 +114,8 @@ import numpy as np
 from typing import List
 
 def draw_objs(image: Image,
+              mask,
+              list_iou,
               boxes: np.ndarray = None,
               classes: np.ndarray = None,
               scores: np.ndarray = None,
@@ -174,7 +184,7 @@ def draw_objs(image: Image,
 
     if draw_masks_on_image and (masks is not None):
         # Draw all mask onto image.
-        image = draw_masks(image, masks, colors, mask_thresh)
+        image = draw_masks(image, masks, colors, list_iou, mask,  mask_thresh)
 
     return image
 
